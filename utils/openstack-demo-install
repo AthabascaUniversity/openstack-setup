@@ -158,7 +158,7 @@ stop_here(){
 ## Selectively run above commands if needed
 ## we don't do any strict control here, so beware...
 ## you can use stop_here in below sequence to break at any point
-ALL=${@:-"pkg_install enable_services startup_services"}
+ALL=${@:-"pkg_install db_setup enable_services startup_services"}
 for cmd in $ALL
     do
         $cmd
