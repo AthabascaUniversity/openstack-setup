@@ -151,11 +151,13 @@ startup_services(){
 }
 
 stop_here(){
+    ## Little helper function to break out of script if needed
     exit 1
 }
 
 ## Selectively run above commands if needed
 ## we don't do any strict control here, so beware...
+## you can use stop_here in below sequence to break at any point
 ALL=${@:-"pkg_install enable_services startup_services"}
 for cmd in $ALL
     do
