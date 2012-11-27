@@ -25,79 +25,86 @@ if [ $(id -u) -ne 0 ]; then
   exit 1
 fi
 
+pkg_install(){
+    ## Return values:
+    ## $os_dist
+    ## $cinder
+    ## 
+    echo "======= Installing/Updating packages ======"
 
-echo "======= Installing/Updating packages ======"
+    # memcached is needed by swift
+    # qpid AMQP broker is needed by most services
+    # virtualization capabilities are needed by nova
+    yum -y install \
+     qpid-cpp-server qpid-cpp-server-daemon \
+     @virtualization \
+     memcached \
+     openstack-nova openstack-glance openstack-keystone openstack-dashboard \
+     openstack-swift\* openstack-quantum \
+     openstack-utils virt-what \
+     -x openstack-swift-plugin-swift3
 
-# memcached is needed by swift
-# qpid AMQP broker is needed by most services
-# virtualization capabilities are needed by nova
-yum -y install \
- qpid-cpp-server qpid-cpp-server-daemon \
- @virtualization \
- memcached \
- openstack-nova openstack-glance openstack-keystone openstack-dashboard \
- openstack-swift\* openstack-quantum \
- openstack-utils virt-what \
- -x openstack-swift-plugin-swift3
+    if rpm -q openstack-nova-common-2012.1.* >/dev/null 2>&1 ||
+       rpm -q openstack-nova-common-2012.1 >/dev/null 2>&1; then
+      os_dist='essex'
+    else
+      os_dist='>=folsom'
+    fi
 
-if rpm -q openstack-nova-common-2012.1.* >/dev/null 2>&1 ||
-   rpm -q openstack-nova-common-2012.1 >/dev/null 2>&1; then
-  os_dist='essex'
-else
-  os_dist='>=folsom'
-fi
-
-if [ "$os_dist" = '>=folsom' ]; then
-  yum install -y openstack-cinder openstack-swift-plugin-swift3
-  cinder='cinder'
-fi
-
-echo "======= Setting up the databases ======"
-
-getpassword()
-{
-  password='x'
-  until [ "$password" = "$rpassword" ]; do
-    read -s -p "Enter a password for the '$1' user : " password; echo >&2
-    read -s -p "Reenter password for the '$1' user : " rpassword; echo >&2
-  done
-  echo "$password"
+    if [ "$os_dist" = '>=folsom' ]; then
+      yum install -y openstack-cinder openstack-swift-plugin-swift3
+      cinder='cinder'
+    fi
 }
 
-ROOT_DB_PW=$(getpassword 'database root')
+db_setup(){
+    echo "======= Setting up the databases ======"
 
-for APP in nova glance keystone $cinder; do
-  openstack-db -y --init --service $APP --rootpw "$ROOT_DB_PW"
-done
+    getpassword()
+    {
+      password='x'
+      until [ "$password" = "$rpassword" ]; do
+        read -s -p "Enter a password for the '$1' user : " password; echo >&2
+        read -s -p "Reenter password for the '$1' user : " rpassword; echo >&2
+      done
+      echo "$password"
+    }
 
-if virt-what | grep -q .; then
-  # We're running in a VM so set nova-compute up appropriately
-  echo '======= Configuring VM. Please wait =======' >&2
-  fedora_ver="0$(sed -n 's/Fedora release \([0-9]*\).*/\1/p' /etc/issue)"
-  openstack-config --set /etc/nova/nova.conf DEFAULT libvirt_type qemu
-  # Workaround (https://bugzilla.redhat.com/show_bug.cgi?id=858311)
-  openstack-config --set /etc/nova/nova.conf DEFAULT libvirt_cpu_mode none
-  if [ "$fedora_ver" -ge 16 ]; then
-    setsebool -P virt_use_execmem on
-  fi
-  # Note if running on RHEL (derivatives) <= 6.3 then
-  # You'll need to issue these commands
-  #  ln -s /usr/libexec/qemu-kvm /usr/bin/qemu-system-x86_64
-  #  service libvirtd restart
-  # See https://bugzilla.redhat.com/show_bug.cgi?id=813735
-fi
+    ROOT_DB_PW=$(getpassword 'database root')
 
-# Allow httpd (horizon) to connect to other services
-setsebool -P httpd_can_network_connect=on
-service httpd restart
+    for APP in nova glance keystone $cinder; do
+      openstack-db -y --init --service $APP --rootpw "$ROOT_DB_PW"
+    done
 
-# Configure cinder with nova and keystone if installed
-if [ "$cinder" ]; then
-  # Change nova configuration to use cinder
-  openstack-config --set /etc/nova/nova.conf DEFAULT volume_api_class nova.volume.cinder.API
-  # The following is the default apis with 'osapi_volume' removed
-  openstack-config --set /etc/nova/nova.conf DEFAULT enabled_apis ec2,osapi_compute,metadata
-fi
+    if virt-what | grep -q .; then
+      # We're running in a VM so set nova-compute up appropriately
+      echo '======= Configuring VM. Please wait =======' >&2
+      fedora_ver="0$(sed -n 's/Fedora release \([0-9]*\).*/\1/p' /etc/issue)"
+      openstack-config --set /etc/nova/nova.conf DEFAULT libvirt_type qemu
+      # Workaround (https://bugzilla.redhat.com/show_bug.cgi?id=858311)
+      openstack-config --set /etc/nova/nova.conf DEFAULT libvirt_cpu_mode none
+      if [ "$fedora_ver" -ge 16 ]; then
+        setsebool -P virt_use_execmem on
+      fi
+      # Note if running on RHEL (derivatives) <= 6.3 then
+      # You'll need to issue these commands
+      #  ln -s /usr/libexec/qemu-kvm /usr/bin/qemu-system-x86_64
+      #  service libvirtd restart
+      # See https://bugzilla.redhat.com/show_bug.cgi?id=813735
+    fi
+
+    # Allow httpd (horizon) to connect to other services
+    setsebool -P httpd_can_network_connect=on
+    service httpd restart
+
+    # Configure cinder with nova and keystone if installed
+    if [ "$cinder" ]; then
+      # Change nova configuration to use cinder
+      openstack-config --set /etc/nova/nova.conf DEFAULT volume_api_class nova.volume.cinder.API
+      # The following is the default apis with 'osapi_volume' removed
+      openstack-config --set /etc/nova/nova.conf DEFAULT enabled_apis ec2,osapi_compute,metadata
+    fi
+}
 
 # TODO support volumes (maybe as an option due to size)
 # Need to support setup on reboot also.
@@ -105,39 +112,55 @@ fi
 # truncate -s20G /var/lib/nova/nova-volumes.img
 # vgcreate nova-volumes $(sudo losetup --show -f /var/lib/nova/nova-volumes.img)
 
-echo "======= Enabling the services ======"
+enable_services(){
+    echo "======= Enabling the services ======"
 
-for svc in qpidd libvirtd httpd; do
-    chkconfig $svc on
-done
-for svc in api registry; do
-    chkconfig openstack-glance-$svc on
-done
-for svc in api objectstore compute network scheduler cert; do
-    chkconfig openstack-nova-$svc on
-done
-if [ "$cinder" ]; then
-  for svc in api scheduler; do
-    chkconfig openstack-cinder-$svc on
-  done
-fi
+    for svc in qpidd libvirtd httpd; do
+        chkconfig $svc on
+    done
+    for svc in api registry; do
+        chkconfig openstack-glance-$svc on
+    done
+    for svc in api objectstore compute network scheduler cert; do
+        chkconfig openstack-nova-$svc on
+    done
+    if [ "$cinder" ]; then
+      for svc in api scheduler; do
+        chkconfig openstack-cinder-$svc on
+      done
+    fi
+}
 
-echo "======= Starting the services ======"
+startup_services(){
+    echo "======= Starting the services ======"
 
-for svc in qpidd libvirtd httpd; do
-    service $svc start
-done
-for svc in api registry; do
-    service openstack-glance-$svc start
-done
-for svc in api objectstore compute network scheduler cert; do
-    service openstack-nova-$svc start
-done
-if [ "$cinder" ]; then
-  for svc in api scheduler; do
-    service openstack-cinder-$svc start
-  done
-fi
+    for svc in qpidd libvirtd httpd; do
+        service $svc start
+    done
+    for svc in api registry; do
+        service openstack-glance-$svc start
+    done
+    for svc in api objectstore compute network scheduler cert; do
+        service openstack-nova-$svc start
+    done
+    if [ "$cinder" ]; then
+      for svc in api scheduler; do
+        service openstack-cinder-$svc start
+      done
+    fi
+}
+
+stop_here(){
+    exit 1
+}
+
+## Selectively run above commands if needed
+## we don't do any strict control here, so beware...
+ALL=${@:-"pkg_install enable_services startup_services"}
+for cmd in $ALL
+    do
+        $cmd
+    done
 
 echo "======= Setting up Keystone ======"
 
