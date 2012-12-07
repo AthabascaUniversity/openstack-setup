@@ -1,5 +1,20 @@
 #!/bin/sh
 
+RCFILE=openstack-setup.rc
+
+if [ -e ${RCFILE} ]
+ . $RCFILE
+fi
+
+RUNTIME_RC_FILE=${1:-openstack-runtime.rc}
+
+{
+ echo "export OS_USERNAME=${OS_USERNAME}"
+ echo "export OS_PASSWORD=${OS_PASSWORD}"
+ echo "export OS_TENANT_NAME=${OS_TENANT_NAME}"
+ echo "export OS_AUTH_URL=${OS_AUTH_URL}"
+} > ${RUNTIME_RC_FILE}
+
 openstack-keystone-setup
 openstack-glance-setup
 openstack-nova-setup
