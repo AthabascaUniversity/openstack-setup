@@ -1,5 +1,7 @@
 #!/bin/sh
 
 openstack-keystone-setup
+openstack-glance-setup
 openstack-nova-setup
-
+openstack-cinder-setup
+openstack-horizon-setup

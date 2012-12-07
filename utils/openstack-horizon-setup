@@ -1,0 +1,18 @@
+#!/bin/sh
+
+RCFILE=openstack-setup.rc
+
+if [ -e ${RCFILE} ]
+ . $RCFILE
+fi
+
+if [ -n "$DB_ROOT_PW" ]
+ DBPW="--rootpw $DB_ROOT_PW"
+fi
+
+
+# Allow httpd (horizon) to connect to other services
+setsebool -P httpd_can_network_connect=on
+service httpd restart
+
+

@@ -1,0 +1,39 @@
+#!/bin/sh
+
+RCFILE=openstack-setup.rc
+
+if [ -e ${RCFILE} ]
+ . $RCFILE
+fi
+
+if [ -n "$DB_ROOT_PW" ]
+ DBPW="--rootpw $DB_ROOT_PW"
+fi
+
+openstack-db -y --init --service glance --rootpw "$DBPW"
+
+for svc in api registry; do
+    chkconfig openstack-glance-$svc on
+done
+
+for svc in api registry; do
+    service openstack-glance-$svc start
+done
+
+# Change glance configuration to use keystone
+for svc in api registry; do
+  openstack-config --set /etc/glance/glance-$svc.conf paste_deploy flavor keystone
+  if [ "$os_dist" = 'essex' ]; then
+    openstack-config --set /etc/glance/glance-$svc-paste.ini filter:authtoken admin_tenant_name service
+    openstack-config --set /etc/glance/glance-$svc-paste.ini filter:authtoken admin_user glance
+    openstack-config --set /etc/glance/glance-$svc-paste.ini filter:authtoken admin_password $GLANCE_SERVICE_PASSWD
+  else # >= folsom
+    openstack-config --set /etc/glance/glance-$svc.conf keystone_authtoken admin_tenant_name service
+    openstack-config --set /etc/glance/glance-$svc.conf keystone_authtoken admin_user glance
+    openstack-config --set /etc/glance/glance-$svc.conf keystone_authtoken admin_password $GLANCE_SERVICE_PASSWD
+  fi
+done
+for svc in api registry; do
+    service openstack-glance-$svc restart
+done
+

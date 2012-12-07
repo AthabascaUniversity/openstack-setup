@@ -46,3 +46,31 @@ ADMIN_PASSWORD=$OS_PASSWORD SERVICE_PASSWORD=${KEYSTONE_SERVICE_PASSWD} \
   ENABLE_SWIFT=${ENABLE_SWIFT} openstack-keystone-setup-data
 
 
+if [ "$ENABLE_CINDER" = "1" ] ; then
+  # TODO: Move this to openstack-keystone-sample-data
+
+  get_id () { echo $("$@" | grep ' id ' | awk '{print $4}'); }
+  ADMIN_PASSWORD=$OS_PASSWORD
+  SERVICE_HOST=127.0.0.1
+  SERVICE_PASSWORD=$CINDER_SERVICE_PASSWD
+  SERVICE_TENANT=$(keystone tenant-list | grep service | awk '{print $2}')
+  ADMIN_ROLE=$(keystone role-list | grep ' admin ' | awk '{print $2}')
+
+  CINDER_USER=$(get_id keystone user-create --name=cinder \
+                                            --pass="$SERVICE_PASSWORD" \
+                                            --tenant_id $SERVICE_TENANT \
+                                            --email=cinder@example.com)
+  keystone user-role-add --tenant_id $SERVICE_TENANT \
+                         --user_id $CINDER_USER \
+                         --role_id $ADMIN_ROLE
+  CINDER_SERVICE=$(get_id keystone service-create \
+      --name=cinder \
+      --type=volume \
+      --description="Cinder Service")
+  keystone endpoint-create \
+      --region $OS_REGION_NAME \
+      --service_id $CINDER_SERVICE \
+      --publicurl "http://$SERVICE_HOST:8776/v1/\$(tenant_id)s" \
+      --adminurl "http://$SERVICE_HOST:8776/v1/\$(tenant_id)s" \
+      --internalurl "http://$SERVICE_HOST:8776/v1/\$(tenant_id)s"
+fi
