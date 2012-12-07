@@ -1,0 +1,5 @@
+#!/bin/sh
+
+openstack-keystone-setup
+openstack-nova-setup
+

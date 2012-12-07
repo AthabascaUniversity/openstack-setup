@@ -1,0 +1,34 @@
+#!/bin/sh
+
+RCFILE=openstack-setup.rc
+
+if [ -e ${RCFILE} ]
+ . $RCFILE
+fi
+
+if [ -n "$DB_ROOT_PW" ]
+ DBPW="--rootpw $DB_ROOT_PW"
+fi
+
+openstack-db -y --init --service cinder --rootpw "$DBPW"
+
+for svc in api scheduler; do
+    chkconfig openstack-cinder-$svc on
+done
+
+for svc in api scheduler; do
+    service openstack-cinder-$svc start
+done
+
+openstack-config --set /etc/cinder/cinder.conf DEFAULT auth_strategy keystone
+openstack-config --set /etc/cinder/cinder.conf keystone_authtoken admin_tenant_name service
+openstack-config --set /etc/cinder/cinder.conf keystone_authtoken admin_user cinder
+openstack-config --set /etc/cinder/cinder.conf keystone_authtoken admin_password $CINDER_SERVICE_PASSWD
+
+# Start the services
+# Note volume requires the cinder-volumes volume group
+# to be available, so we don't enable that by default
+for svc in api scheduler; do
+    service openstack-cinder-$svc restart
+done
+
