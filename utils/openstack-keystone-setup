@@ -1,0 +1,48 @@
+#!/bin/sh
+RCFILE=openstack-setup.rc
+
+if [ -e ${RCFILE} ]
+ . $RCFILE
+fi
+
+if [ -n "$DB_ROOT_PW" ]
+ DBPW="--rootpw $DB_ROOT_PW"
+fi
+
+openstack-db -y --init --service keystone $DBPW
+
+## May have to go to Horizon setup
+# setsebool -P httpd_can_network_connect=on
+# service httpd restart
+
+## If I got things right - we need qpidd
+for svc in qpidd ; do
+        chkconfig $svc on
+done
+ 
+for svc in qpidd ; do
+        service $svc start
+done
+ 
+
+openstack-config --set /etc/keystone/keystone.conf DEFAULT admin_token $SERVICE_TOKEN
+
+service openstack-keystone status >/dev/null 2>&1 &&
+  service openstack-keystone stop
+
+# Start and enable the Keystone service
+service openstack-keystone start
+chkconfig openstack-keystone on
+
+tries=0
+until keystone user-list >/dev/null 2>&1; do
+  tries=$(($tries + 1))
+  [ $tries -eq 10 ] && { keystone user-list; break; }
+  sleep 1
+done
+
+##XXX fix openstack-keystone-setup-data ...
+ADMIN_PASSWORD=$OS_PASSWORD SERVICE_PASSWORD=${KEYSTONE_SERVICE_PASSWD} \
+  ENABLE_SWIFT=${ENABLE_SWIFT} openstack-keystone-setup-data
+
+

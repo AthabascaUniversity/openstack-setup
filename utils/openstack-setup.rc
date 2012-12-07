@@ -1,0 +1,22 @@
+## Setup-specific
+DB_ROOT_PW=""
+KEYSTONE_SERVICE_PASSWD="keystone"
+NOVA_SERVICE_PASSWD="nova"
+
+ENABLE_SWIFT=0
+ENABLE_CINDER=1
+
+## you could use '>=folsom' or 'essex' here...
+os_dist=">=folsom"
+
+## OpenStack-specific
+export OS_USERNAME="admin"
+export OS_PASSWORD="xxxpasswordxxx"
+export OS_TENANT_NAME="admin"
+export OS_AUTH_URL="http://127.0.0.1:5000/v2.0/"
+
+## Bootstrap vars
+
+SERVICE_TOKEN="someverylongandrandomstinggoeshere"
+SERVICE_ENDPOINT="http://127.0.0.1:35357/v2.0"
+
