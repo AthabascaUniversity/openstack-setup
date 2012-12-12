@@ -1,11 +1,11 @@
 #!/bin/sh
 RCFILE=openstack-setup.rc
 
-if [ -e ${RCFILE} ]
+if [ -e ${RCFILE} ]; then
  . $RCFILE
 fi
 
-if [ -n "$DB_ROOT_PW" ]
+if [ -n "$DB_ROOT_PW" ]; then
  DBPW="--rootpw $DB_ROOT_PW"
 fi
 
