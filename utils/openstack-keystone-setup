@@ -9,6 +9,26 @@ if [ -n "$DB_ROOT_PW" ]; then
  DBPW="--rootpw $DB_ROOT_PW"
 fi
 
+set_bootstrap_auth(){
+    export SERVICE_ENDPOINT
+    export SERVICE_TOKEN
+    export -n OS_AUTH_URL
+    export -n OS_PASSWORD
+    export -n OS_USERNAME
+    export -n OS_REGION_NAME
+    export -n OS_TENANT_NAME
+}
+
+set_standard_auth(){
+    export -n SERVICE_ENDPOINT
+    export -n SERVICE_TOKEN
+    export OS_AUTH_URL
+    export OS_PASSWORD
+    export OS_USERNAME
+    export OS_REGION_NAME
+    export OS_TENANT_NAME
+}
+
 openstack-db -y --init --service keystone $DBPW
 
 ## May have to go to Horizon setup
@@ -34,13 +54,8 @@ service openstack-keystone status >/dev/null 2>&1 &&
 service openstack-keystone start
 chkconfig openstack-keystone on
 
-export SERVICE_ENDPOINT
-export SERVICE_TOKEN
-export -n OS_AUTH_URL
-export -n OS_PASSWORD
-export -n OS_USERNAME
-export -n OS_REGION_NAME
-export -n OS_TENANT_NAME
+set_bootstrap_auth
+
 tries=0
 until keystone user-list >/dev/null 2>&1; do
   tries=$(($tries + 1))
@@ -52,13 +67,6 @@ done
 ADMIN_PASSWORD=$OS_PASSWORD SERVICE_PASSWORD=${KEYSTONE_SERVICE_PASSWD} \
   ENABLE_SWIFT=${ENABLE_SWIFT} openstack-keystone-setup-data
 
-export -n SERVICE_ENDPOINT
-export -n SERVICE_TOKEN
-export OS_AUTH_URL
-export OS_PASSWORD
-export OS_USERNAME
-export OS_REGION_NAME
-export OS_TENANT_NAME
 
 if [ "$ENABLE_CINDER" = "1" ] ; then
   # TODO: Move this to openstack-keystone-sample-data
@@ -88,3 +96,4 @@ if [ "$ENABLE_CINDER" = "1" ] ; then
       --adminurl "http://$SERVICE_HOST:8776/v1/\$(tenant_id)s" \
       --internalurl "http://$SERVICE_HOST:8776/v1/\$(tenant_id)s"
 fi
+set_bootstrap_auth
