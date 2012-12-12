@@ -34,12 +34,21 @@ service openstack-keystone status >/dev/null 2>&1 &&
 service openstack-keystone start
 chkconfig openstack-keystone on
 
+{
+ export SERVICE_ENDPOINT
+ export SERVICE_TOKEN
+ unset OS_AUTH_URL
+ unset OS_PASSWORD
+ unset OS_USERNAME
+ unset OS_REGION_NAME
+ unset OS_TENANT_NAME
 tries=0
 until keystone user-list >/dev/null 2>&1; do
   tries=$(($tries + 1))
   [ $tries -eq 10 ] && { keystone user-list; break; }
   sleep 1
 done
+}
 
 ##XXX fix openstack-keystone-setup-data ...
 ADMIN_PASSWORD=$OS_PASSWORD SERVICE_PASSWORD=${KEYSTONE_SERVICE_PASSWD} \
