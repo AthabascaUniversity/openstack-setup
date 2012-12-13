@@ -168,7 +168,7 @@ keystone service-create --name=nova \
                         --type=compute \
                         --description="Nova Compute Service")
 NOVA_USER=$(get_id keystone user-create --name=nova \
-                                        --pass="$SERVICE_PASSWORD" \
+                                        --pass="$NOVA_SERVICE_PASSWORD" \
                                         --tenant-id $SERVICE_TENANT \
                                         --email=nova@example.com)
 keystone user-role-add --tenant-id $SERVICE_TENANT \
@@ -197,7 +197,7 @@ keystone service-create --name=glance \
                         --type=image \
                         --description="Glance Image Service")
 GLANCE_USER=$(get_id keystone user-create --name=glance \
-                                          --pass="$SERVICE_PASSWORD" \
+                                          --pass="$GLANCE_SERVICE_PASSWORD" \
                                           --tenant-id $SERVICE_TENANT \
                                           --email=glance@example.com)
 keystone user-role-add --tenant-id $SERVICE_TENANT \
@@ -242,7 +242,7 @@ if [[ -n "$ENABLE_SWIFT" ]]; then
                             --type="object-store" \
                             --description="Swift Service")
     SWIFT_USER=$(get_id keystone user-create --name=swift \
-                                             --pass="$SERVICE_PASSWORD" \
+                                             --pass="$SWIFT_SERVICE_PASSWORD" \
                                              --tenant-id $SERVICE_TENANT \
                                              --email=swift@example.com)
     keystone user-role-add --tenant-id $SERVICE_TENANT \
@@ -262,7 +262,7 @@ if [[ -n "$ENABLE_QUANTUM" ]]; then
                             --type=network \
                             --description="Quantum Service")
     QUANTUM_USER=$(get_id keystone user-create --name=quantum \
-                                               --pass="$SERVICE_PASSWORD" \
+                                               --pass="$QUANTUM_SERVICE_PASSWORD" \
                                                --tenant-id $SERVICE_TENANT \
                                                --email=quantum@example.com)
     keystone user-role-add --tenant-id $SERVICE_TENANT \
