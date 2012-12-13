@@ -19,6 +19,10 @@ ENABLE_CINDER=1
 
 ## you could use '>=folsom' or 'essex' here...
 os_dist=">=folsom"
+
+
+LOG_DIR=.
+TMP_DIR=.
 ##
 ######################
 
@@ -43,4 +47,15 @@ OS_IDENTITY_API_VERSION=2.0
 ##
 ######################
 
+## Some default settings for all scripts
 set -e
+
+LOG_FILE=${LOG_DIR}/openstack-setup.log
+# Stdout is not a terminal.
+npipe=$(mktemp -u --tmpdir=${TMP_DIR} XXXXXXXXX.npipe)
+trap "rm -f $npipe" EXIT
+mknod $npipe p
+tee -a <$npipe ${LOG_FILE} &
+exec 1>&-
+exec 1>$npipe
+
