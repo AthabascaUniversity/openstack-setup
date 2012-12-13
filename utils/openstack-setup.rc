@@ -1,10 +1,10 @@
 ######################
 ## Setup-specific
 DB_ROOT_PW=""
-KEYSTONE_SERVICE_PASSWD="keystone"
-NOVA_SERVICE_PASSWD="nova"
-CINDER_SERVICE_PASSWD="cinder"
-GLANCE_SERVICE_PASSWD="glance"
+KEYSTONE_SERVICE_PASSWORD="keystone"
+NOVA_SERVICE_PASSWORD="nova"
+CINDER_SERVICE_PASSWORD="cinder"
+GLANCE_SERVICE_PASSWORD="glance"
 RUNTIME_RC="openstack-runtime.rc"
 SETUP_UTILS="openstack-setup-utils"
 

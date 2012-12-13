@@ -66,7 +66,7 @@ if [ "$ENABLE_CINDER" = "1" ] ; then
   ADMIN_ROLE=$(keystone role-list | grep ' admin ' | awk '{print $2}')
 
   CINDER_USER=$(get_id keystone user-create --name=cinder \
-                                            --pass="$SERVICE_PASSWORD" \
+                                            --pass="$CINDER_SERVICE_PASSWORD" \
                                             --tenant_id $SERVICE_TENANT \
                                             --email=cinder@example.com)
   keystone user-role-add --tenant_id $SERVICE_TENANT \
