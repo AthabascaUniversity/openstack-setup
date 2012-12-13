@@ -2,7 +2,7 @@
 
 RCFILE=openstack-setup.rc
 
-if [ -e ${RCFILE} ]
+if [ -e ${RCFILE} ] ; then
  . $RCFILE
 fi
 

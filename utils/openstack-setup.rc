@@ -1,15 +1,32 @@
+######################
 ## Setup-specific
 DB_ROOT_PW=""
 KEYSTONE_SERVICE_PASSWD="keystone"
 NOVA_SERVICE_PASSWD="nova"
 CINDER_SERVICE_PASSWD="cinder"
 GLANCE_SERVICE_PASSWD="glance"
+RUNTIME_RC="openstack-runtime.rc"
+
+## Keystone data setup
+MY_USER=demo
+MY_PUB_TENANT=demo
+MY_PRIV_TENANT=invisible_to_admin
+MY_REGION=$OS_REGION_NAME
 
 ENABLE_SWIFT=0
 ENABLE_CINDER=1
 
 ## you could use '>=folsom' or 'essex' here...
 os_dist=">=folsom"
+##
+######################
+
+
+######################
+## OpenStack Bootstrap vars
+
+SERVICE_TOKEN="someverylongandrandomstinggoeshere"
+SERVICE_ENDPOINT="http://127.0.0.1:35357/v2.0"
 
 ## OpenStack-specific
 export OS_USERNAME="admin"
@@ -18,8 +35,9 @@ export OS_TENANT_NAME="admin"
 export OS_AUTH_URL="http://127.0.0.1:5000/v2.0/"
 export OS_REGION_NAME="RegionOne"
 
-## Bootstrap vars
-
-SERVICE_TOKEN="someverylongandrandomstinggoeshere"
-SERVICE_ENDPOINT="http://127.0.0.1:35357/v2.0"
-
+## https://github.com/openstack/python-keystoneclient
+OS_SERVICE_TOKEN=${SERVICE_TOKEN}
+OS_SERVICE_ENDPOINT=${SERVICE_ENDPOINT}
+OS_IDENTITY_API_VERSION=2.0
+##
+######################

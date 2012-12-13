@@ -3,3 +3,10 @@ export OS_PASSWORD="xxxpasswordxxx"
 export OS_TENANT_NAME="admin"
 export OS_AUTH_URL="http://127.0.0.1:5000/v2.0/"
 
+
+## https://github.com/openstack/python-keystoneclient
+OS_SERVICE_TOKEN="someverylongandrandomstinggoeshere"
+OS_SERVICE_ENDPOINT="http://127.0.0.1:35357/v2.0"
+OS_IDENTITY_API_VERSION=2.0
+
+
