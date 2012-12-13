@@ -6,17 +6,18 @@ if [ -e ${RCFILE} ] ; then
  . $RCFILE
 fi
 
-RUNTIME_RC_FILE=${1:-openstack-runtime.rc}
+if [ -e "$SETUP_UTILS" ] ; then
+    . ${SETUP_UTILS}
+else
+    echo "Missing Setup Utils"
+fi
 
-{
- echo "export OS_USERNAME=${OS_USERNAME}"
- echo "export OS_PASSWORD=${OS_PASSWORD}"
- echo "export OS_TENANT_NAME=${OS_TENANT_NAME}"
- echo "export OS_AUTH_URL=${OS_AUTH_URL}"
-} > ${RUNTIME_RC_FILE}
 
 openstack-keystone-setup
 openstack-glance-setup
 openstack-nova-setup
 openstack-cinder-setup
 openstack-horizon-setup
+openstack-swift-setup
+
+save_runtime $RUNTIME_RC

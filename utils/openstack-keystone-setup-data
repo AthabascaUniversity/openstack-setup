@@ -65,7 +65,7 @@ MY_REGION=${MY_REGION:-RegionOne}
 # $MY_PUB_TENANT       $MY_USER  Member,sysadmin,netadmin
 # $MY_PRIV_TENANT      $MY_USER  Member
 
-RCFILE=openstack-setup.rc
+RCFILE=${SETUP_RC:-"openstack-setup.rc"}
 
 if [ -e ${RCFILE} ]; then
  . $RCFILE
@@ -276,6 +276,13 @@ if [[ -n "$ENABLE_QUANTUM" ]]; then
     fi
 fi
 
+if [[ -n "$ENABLE_SWIFT" ]]; then
+  SWIFTSERIVEID=$(keystone service-list | grep object-store | awk '{print $2}')
+  keystone endpoint-create --service_id $SWIFTSERIVEID \
+                           --publicurl   'http://127.0.0.1:8080/v1/AUTH_$(tenant_id)s' \
+                           --adminurl    'http://127.0.0.1:8080/v1/AUTH_$(tenant_id)s' \
+                           --internalurl 'http://127.0.0.1:8080/v1/AUTH_$(tenant_id)s'
+fi
 
 # create ec2 creds and parse the secret and access key returned
 RESULT=$(keystone ec2-credentials-create --tenant-id=$ADMIN_TENANT --user-id=$ADMIN_USER)
