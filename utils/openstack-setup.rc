@@ -10,18 +10,31 @@ GLANCE_SERVICE_PASSWORD="glance"
 RUNTIME_RC="openstack-runtime.rc"
 SETUP_UTILS="openstack-setup-utils"
 
-## Keystone data setup
+## Keystone data setup - used from openstack-keystone-setup-data
+### In addition to 'admin' we will setup additional user
 MY_USER=demo
+## publically visible tenant
 MY_PUB_TENANT=demo
+## private visible tenant
 MY_PRIV_TENANT=invisible_to_admin
-MY_REGION=$OS_REGION_NAME
+## Change default region's name here
+MY_REGION='RegionOne'
 
+# Set ENABLE_*=1 if you want service setup, empty disables setup
 ENABLE_SWIFT=""
 ENABLE_CINDER=1
+# Careful with this one: don't disable unless you know what you're doing
 ENABLE_ENDPOINTS=1
 
 ## you could use '>=folsom' or 'essex' here...
 os_dist=">=folsom"
+
+## Where to store install logs
+LOG_DIR=.
+## Temp directory for various needs
+## if you intend on running nova-glance-demo it needs to be big 
+## enough for sample glance image
+TMP_DIR=.
 
 ## /OPTIONAL/
 ## create Nova network. This will be prepended with 
@@ -34,33 +47,44 @@ os_dist=">=folsom"
 # NOVA_GLANCE_DEMO_IMG_URL="http://berrange.fedorapeople.org/images/2012-11-15/f17-x86_64-openstack-sda.qcow2"
 # NOVA_GLANCE_DEMO_IMG_NAME="f17-jeos"
 
-LOG_DIR=.
-TMP_DIR=.
-##
+## EOS
 ######################
 
 
 ######################
 ## OpenStack Bootstrap vars
+## 
+## You HAVE TO modify those to some 
+## sane values
 
 SERVICE_TOKEN="someverylongandrandomstinggoeshere"
+
+## !!! Don't touch this
 SERVICE_ENDPOINT="http://127.0.0.1:35357/v2.0"
 
 ## OpenStack-specific
 export OS_USERNAME="admin"
 export OS_PASSWORD="xxxpasswordxxx"
 export OS_TENANT_NAME="admin"
+
+## !!! Don't touch this
 export OS_AUTH_URL="http://127.0.0.1:5000/v2.0/"
-export OS_REGION_NAME="RegionOne"
+
+export OS_REGION_NAME=$MY_REGION
 
 ## https://github.com/openstack/python-keystoneclient
 OS_SERVICE_TOKEN=${SERVICE_TOKEN}
 OS_SERVICE_ENDPOINT=${SERVICE_ENDPOINT}
+
+## !!! Don't touch this
 OS_IDENTITY_API_VERSION=2.0
-##
+## 
+## EOS
 ######################
 
-## Some default settings for all scripts
+######################
+## logging and some common code
+## 
 set -e
 
 LOG_FILE=${LOG_DIR}/openstack-setup.log
@@ -73,3 +97,6 @@ exec 1>&-
 exec 1>$npipe
 exec 2>&1
 
+## 
+## EOS
+######################
