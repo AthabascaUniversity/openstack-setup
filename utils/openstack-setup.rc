@@ -1,13 +1,24 @@
 ######################
-## Setup-specific
+## Setup-time only
 ##
 ## /MANDATORY/
+
+## MySQL Root's password. Default in RH is empty
 DB_ROOT_PW=""
+
+## OpenStack service users credentials
 KEYSTONE_SERVICE_PASSWORD="keystone"
 NOVA_SERVICE_PASSWORD="nova"
 CINDER_SERVICE_PASSWORD="cinder"
 GLANCE_SERVICE_PASSWORD="glance"
+## you will source this file 
+## any time you want to use 
+## CLI tools to avoid re-typing
+## of user/password/tenant/region/etc.
 RUNTIME_RC="openstack-runtime.rc"
+
+## full path to openstack-setup-utils file
+## or file with compatible API
 SETUP_UTILS="openstack-setup-utils"
 
 ## Keystone data setup - used from openstack-keystone-setup-data
