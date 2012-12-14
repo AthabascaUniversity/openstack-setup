@@ -16,8 +16,9 @@ nova keypair-add demo-key > ~/demo-key.priv
 
 chmod 600 ~/demo-key.priv
 
-curl ${NOVA_GLANCE_DEMO_IMG_URL} | \
-  glance add name=${NOVA_GLANCE_DEMO_IMG_NAME} is_public=true disk_format=qcow2 container_format=bare 
+
+curl -C - -o ${TMP_DIR}/${NOVA_GLANCE_DEMO_IMG_NAME}.qcow2 ${NOVA_GLANCE_DEMO_IMG_URL} 
+glance add name=${NOVA_GLANCE_DEMO_IMG_NAME} is_public=true disk_format=qcow2 container_format=bare < ${TMP_DIR}/${NOVA_GLANCE_DEMO_IMG_NAME}.qcow2
 
 nova boot myserver --flavor 2 --key_name demo-key \
      --image $(glance index | grep ${NOVA_GLANCE_DEMO_IMG_NAME} | awk '{print $1}')
