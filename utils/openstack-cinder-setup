@@ -23,7 +23,7 @@ done
 openstack-config --set /etc/cinder/cinder.conf DEFAULT auth_strategy keystone
 openstack-config --set /etc/cinder/cinder.conf keystone_authtoken admin_tenant_name service
 openstack-config --set /etc/cinder/cinder.conf keystone_authtoken admin_user cinder
-openstack-config --set /etc/cinder/cinder.conf keystone_authtoken admin_password $CINDER_SERVICE_PASSWD
+openstack-config --set /etc/cinder/cinder.conf keystone_authtoken admin_password $CINDER_SERVICE_PASSWORD
 
 # Start the services
 # Note volume requires the cinder-volumes volume group

@@ -43,11 +43,11 @@ openstack-config --set /etc/nova/nova.conf DEFAULT auth_strategy keystone
 if [ "$os_dist" = 'essex' ]; then
   openstack-config --set /etc/nova/api-paste.ini filter:authtoken admin_tenant_name service
   openstack-config --set /etc/nova/api-paste.ini filter:authtoken admin_user nova
-  openstack-config --set /etc/nova/api-paste.ini filter:authtoken admin_password $NOVA_SERVICE_PASSWD
+  openstack-config --set /etc/nova/api-paste.ini filter:authtoken admin_password $NOVA_SERVICE_PASSWORD
 else # >= folsom
   openstack-config --set /etc/nova/nova.conf keystone_authtoken admin_tenant_name service
   openstack-config --set /etc/nova/nova.conf keystone_authtoken admin_user nova
-  openstack-config --set /etc/nova/nova.conf keystone_authtoken admin_password $NOVA_SERVICE_PASSWD
+  openstack-config --set /etc/nova/nova.conf keystone_authtoken admin_password $NOVA_SERVICE_PASSWORD
 fi
 for svc in api compute; do
     service openstack-nova-$svc restart
