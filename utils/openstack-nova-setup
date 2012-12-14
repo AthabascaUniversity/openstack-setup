@@ -53,4 +53,6 @@ for svc in api compute; do
     service openstack-nova-$svc restart
 done
 
-
+if [ -n "$NOVA_NET" ] ; then
+   nova-manage network create $NOVA_NET
+fi

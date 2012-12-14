@@ -1,0 +1,23 @@
+#!/bin/sh
+
+RCFILE=openstack-setup.rc
+
+if [ -e ${RCFILE} ]; then
+ . $RCFILE
+fi
+
+if [ -n "$DB_ROOT_PW" ]; then
+ DBPW="--rootpw $DB_ROOT_PW"
+fi
+
+modprobe nbd 
+
+nova keypair-add demo-key > ~/demo-key.priv
+
+chmod 600 ~/demo-key.priv
+
+curl ${NOVA_GLANCE_DEMO_IMG_URL} | \
+  glance add name=${NOVA_GLANCE_DEMO_IMG_NAME} is_public=true disk_format=qcow2 container_format=bare 
+
+nova boot myserver --flavor 2 --key_name demo-key \
+     --image $(glance index | grep ${NOVA_GLANCE_DEMO_IMG_NAME} | awk '{print $1}')
