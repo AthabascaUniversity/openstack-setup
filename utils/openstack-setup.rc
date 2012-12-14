@@ -16,6 +16,7 @@ MY_REGION=$OS_REGION_NAME
 
 ENABLE_SWIFT=0
 ENABLE_CINDER=1
+ENABLE_ENDPOINTS=1
 
 ## you could use '>=folsom' or 'essex' here...
 os_dist=">=folsom"
@@ -58,4 +59,5 @@ mknod $npipe p
 tee -a <$npipe ${LOG_FILE} &
 exec 1>&-
 exec 1>$npipe
+exec 2>&1
 

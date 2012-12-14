@@ -38,3 +38,15 @@ save_runtime(){
 }
 
 
+cleanup_os_evn(){
+    unset  SERVICE_ENDPOINT
+    unset  SERVICE_TOKEN
+    unset OS_AUTH_URL
+    unset OS_PASSWORD
+    unset OS_USERNAME
+    unset OS_REGION_NAME
+    unset OS_TENANT_NAME
+    unset OS_SERVICE_ENDPOINT
+    unset OS_SERVICE_TOKEN
+}
+
