@@ -1,9 +1,13 @@
 #!/bin/sh
-RCFILE=openstack-setup.rc
+RCFILE=${1:-"openstack-setup.rc"}
 
 if [ -e ${RCFILE} ]; then
  . $RCFILE
+else
+ echo "Missing ${RCFILE}"
+ exit 1
 fi
+
 
 if [ -n "$DB_ROOT_PW" ]; then
  DBPW="--rootpw $DB_ROOT_PW"

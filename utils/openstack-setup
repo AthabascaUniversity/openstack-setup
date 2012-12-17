@@ -1,23 +1,18 @@
 #!/bin/sh
 
-RCFILE=openstack-setup.rc
+RCFILE=${1:-"openstack-setup.rc"}
 
 if [ -e ${RCFILE} ] ; then
  . $RCFILE
-fi
-
-if [ -e "$SETUP_UTILS" ] ; then
-    . ${SETUP_UTILS}
 else
-    echo "Missing Setup Utils"
+ echo "Missing $RCFILE"
+ exit 1
 fi
 
+[ -n "$ENABLE_KEYSTONE" ]   && openstack-keystone-setup $RCFILE
+[ -n "$ENABLE_GLANCE" ]     && openstack-glance-setup   $RCFILE
+[ -n "$ENABLE_NOVA" ]       && openstack-nova-setup     $RCFILE
+[ -n "$ENABLE_CINDER" ]     && openstack-cinder-setup   $RCFILE
+[ -n "$ENABLE_HORIZON" ]    && openstack-horizon-setup  $RCFILE
+[ -n "$ENABLE_SWIFT" ]      && openstack-swift-setup    $RCFILE
 
-openstack-keystone-setup
-openstack-glance-setup
-openstack-nova-setup
-openstack-cinder-setup
-openstack-horizon-setup
-openstack-swift-setup
-
-save_runtime $RUNTIME_RC

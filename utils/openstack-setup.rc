@@ -32,8 +32,12 @@ MY_PRIV_TENANT=invisible_to_admin
 MY_REGION='RegionOne'
 
 # Set ENABLE_*=1 if you want service setup, empty disables setup
-ENABLE_SWIFT=""
+ENABLE_KEYSTONE=1
+ENABLE_GLANCE=1
+ENABLE_NOVA=1
 ENABLE_CINDER=1
+ENABLE_SWIFT=""
+ENABLE_HORIZON=1
 # Careful with this one: don't disable unless you know what you're doing
 ENABLE_ENDPOINTS=1
 
