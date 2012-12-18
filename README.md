@@ -14,7 +14,8 @@ Configs
                                       all tweaking happens there
 * openstack-runtime.rc              - This file will be auto-updated by setup
                                       process. To be used for setting up environment
-                                      to use with OpenStack CLI tools:
+                                      to use with OpenStack CLI tools::
+
                                         $ . openstack-runtime.rc
 
 All of the scripts below accept parameter - name of the RC file to use for 
