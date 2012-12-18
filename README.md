@@ -17,13 +17,12 @@ Configs
                                       to use with OpenStack CLI tools::
 
                                         $ . openstack-runtime.rc
-
-All of the scripts below accept parameter - name of the RC file to use for 
-variable initialization.
-
-
 Scripts
 -------
+
+All of the scripts below accept optional parameter - name of the RC file to use for 
+variable initialization. If no parameter was supplied - they will attempt to load default
+RC file: openstack-setup.rc . 
 
 * openstack-setup                   - Main script
 
