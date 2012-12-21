@@ -31,7 +31,7 @@ openstack-config --set /etc/cinder/cinder.conf keystone_authtoken admin_password
 # Start the services
 # Note volume requires the cinder-volumes volume group
 # to be available, so we don't enable that by default
-for svc in api scheduler; do
+for svc in api scheduler volume; do
     service openstack-cinder-$svc restart
 done
 
