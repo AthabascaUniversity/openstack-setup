@@ -1,0 +1,35 @@
+#!/bin/sh
+
+### Controller
+#qpid-cpp-server
+#qpid-cpp-server-daemon
+#mysqld
+#
+### Compute
+#guestfish 
+#kvm
+#libguestfs-tools
+#libvirt 
+#libvirt-client
+#libvirt-python 
+#python-virtinst 
+#virt-top
+#virt-what
+#bridge-utils
+#
+### Dashboard/Swift
+#memcached
+#
+#openstack-nova 
+#openstack-glance 
+#openstack-keystone 
+#openstack-dashboard \
+#openstack-swift\* 
+#openstack-quantum 
+#openstack-cinder \
+#openstack-utils 
+#
+#
+### Volume
+#vgs | grep cinder-volumes
+
