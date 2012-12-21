@@ -16,3 +16,4 @@ fi
 [ -n "$ENABLE_HORIZON" ]    && openstack-horizon-setup  $RCFILE
 [ -n "$ENABLE_SWIFT" ]      && openstack-swift-setup    $RCFILE
 
+openstack-status
