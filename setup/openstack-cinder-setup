@@ -13,6 +13,9 @@ if [ -n "$DB_ROOT_PW" ]; then
  DBPW="--rootpw $DB_ROOT_PW"
 fi
 
+. ${SETUP_UTILS}
+detect_distro
+
 openstack-db -y --init --service cinder --rootpw "$DBPW"
 
 for svc in api scheduler; do
@@ -31,7 +34,29 @@ openstack-config --set /etc/cinder/cinder.conf keystone_authtoken admin_password
 # Start the services
 # Note volume requires the cinder-volumes volume group
 # to be available, so we don't enable that by default
-for svc in api scheduler volume; do
+for svc in api scheduler; do
     service openstack-cinder-$svc restart
 done
+
+
+
+## Fixes for RHEL 6.x <= 6.3
+if [ "$DISTRO" = 'el' ] ; then
+    if [ "$DISTRO_VER" -eq '6' ] ; then
+      if [ "$DISTRO_REL" -le '3' ] ; then
+        
+        ## as per comment in /etc/tgt/conf.d/cinder.conf
+        ## while not flexible or smart - it should do the trick
+        grep -F 'include /etc/cinder/volumes/*' /etc/tgt/targets.conf || \
+         sed -i '0 i ##OPENSTACK-SETUP: \
+    include /etc/cinder/volumes/* \
+    ' /etc/tgt/targets.conf
+      fi
+    fi
+fi
+
+service tgtd restart
+chkconfig tgtd on
+service openstack-cinder-volume start
+chkconfig openstack-cinder-volume on
 

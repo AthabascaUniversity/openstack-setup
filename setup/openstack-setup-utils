@@ -25,6 +25,8 @@ set_standard_auth(){
 
 save_runtime(){
     OUTFILE=$1
+    ## This has to be changed along with "restore_ps1" function
+    ## that mangles PS1 based on rules here
     {
      echo "export OS_AUTH_URL=${OS_AUTH_URL}"
      echo "export OS_PASSWORD=${OS_PASSWORD}"
@@ -34,7 +36,14 @@ save_runtime(){
      echo "OS_SERVICE_ENDPOINT=${OS_SERVICE_ENDPOINT}"
      echo "OS_SERVICE_TOKEN=${OS_SERVICE_TOKEN}"
      echo "OS_IDENTITY_API_VERSION=2.0"
+     echo 'export PROMPT_COMMAND='\''[ -n "${OS_USERNAME}${OS_REGION_NAME}${OS_REGION_NAME}" ] && echo "=== OpenStack ==> " /${OS_USERNAME}@${OS_REGION_NAME}:${OS_TENANT_NAME}/'\'
     } > $OUTFILE
+}
+
+restore_ps1(){
+     OLD_PS1_PREFIX="/${OS_USERNAME}@${OS_REGION_NAME}:${OS_TENANT_NAME}/ "
+     PS1=${PS1##*${OLD_PS1_PREFIX}}
+     export PS1
 }
 
 
@@ -48,6 +57,7 @@ cleanup_os_env(){
     unset OS_TENANT_NAME
     unset OS_SERVICE_ENDPOINT
     unset OS_SERVICE_TOKEN
+    unset PROMPT_COMMAND
 }
 
 dump_os_env(){
@@ -64,4 +74,26 @@ dump_os_env(){
     echo "OS_IDENTITY_API_VERSION=2.0"
     echo "SERVICE_ENDPOINT=$SERVICE_ENDPOINT"
     echo "SERVICE_TOKEN=$SERVICE_TOKEN"
+}
+
+detect_distro(){
+    if rpm --quiet -q fedora-release ; then
+       DISTRO="f"
+       DISTRO_VER_STR=$(rpm --qf '%{version}:%{release}\n' -q fedora-release)
+       DISTRO_VER=${DISTRO_VER_STR%:*}
+       DISTRO_REL=${DISTRO_VER_STR#:}
+    fi
+    if rpm --quiet -q redhat-release ; then
+       DISTRO="el"
+       DISTRO_VER_STR=$(rpm --qf '%{release}\n' -q redhat-release)
+    fi
+    if rpm --quiet -q redhat-release-server ; then
+       DISTRO="el"
+       DISTRO_VER_STR=$(rpm --qf '%{release}\n' -q redhat-release-server)
+    fi
+    if [ "$DISTRO" = "el" ] ; then
+       DISTRO_VER=${DISTRO_VER_STR%%.*}
+       DISTRO_REL_LONG=${DISTRO_VER_STR#*.}
+       DISTRO_REL=${DISTRO_REL_LONG%%.*}
+    fi
 }
