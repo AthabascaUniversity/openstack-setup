@@ -1,0 +1,25 @@
+<env>
+  <mysql host="127.0.0.1" user="root" password=""/>
+</env>
+
+<openstack>
+  <controller>
+    <admin host="localhost"/>
+    <public host="localhost"/>
+    <internal host="localhost"/>
+  </controller>
+  <keystone host="127.0.0.1" user="keystone" password="keystone">
+    <admin password="secrete"/>
+    <nova host="127.0.0.1" user="nova" password="nova"/>
+    <config path="/etc/keystone/keystone.conf"/>
+   <cinder host="127.0.0.1" user="cinder" password="cinder"/>
+ </keystone>
+ <service>
+   <endpoint uri="http://127.0.0.1:35357/v2.0" />
+ </service>
+ <services>
+   <keystone password=""/>
+   <cinder password=""/>
+ </services>
+</openstack>
+  
