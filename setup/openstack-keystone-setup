@@ -64,7 +64,7 @@ if [ "$ENABLE_CINDER" = "1" ] ; then
 
   get_id () { echo $("$@" | grep ' id ' | awk '{print $4}'); }
   ADMIN_PASSWORD=$OS_PASSWORD
-  SERVICE_HOST=127.0.0.1
+  SERVICE_HOST=${CINDER_SERVICE_HOST:-127.0.0.1}
   SERVICE_PASSWORD=$CINDER_SERVICE_PASSWORD
   SERVICE_TENANT=$(keystone tenant-list | grep service | awk '{print $2}')
   ADMIN_ROLE=$(keystone role-list | grep ' admin ' | awk '{print $2}')

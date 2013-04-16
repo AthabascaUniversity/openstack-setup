@@ -1,0 +1,135 @@
+<setup>
+<env>
+  <mysql host="127.0.0.1" user="root" password=""/>
+  <auth user="admin" password="XXXXXXXXXX" tenant="YYY" uri="http://127.0.0.1:5000/v2.0/"/>
+  <endpoint uri="http://127.0.0.1:35357/v2.0" token=""/>
+  <config path="/etc/keystone/keystone.conf"/>
+</env>
+
+<openstack>
+  <tenants>
+    <tenant name="admin"/>
+    <tenant name="service"/>
+    <tenant name="pub_tenant"/>
+    <tenant name="priv_tenant"/>
+  </tenants>
+  <users>
+    <user name="admin" password="adminXX" email="admin@example.com"/>
+    <user name="demo" password="demo" email="demo@example.com"/>
+  </users>
+  <roles>
+    <role name="admin"/>
+    <role name="Member"/>
+    <role name="KeystoneAdmin"/>
+    <role name="KeystoneServiceAdmin"/>
+    <role name="sysadmin"/>
+    <role name="netadmin"/>
+  </roles>
+  <rolemaps>
+    <rolemap user="admin" role="admin" tenant="admin"/>
+    <rolemap user="demo" role="Member" tenant="pub_tenant"/>
+    <rolemap user="demo" role="sysadmin" tenant="pub_tenant"/>
+    <rolemap user="demo" role="netadmin" tenant="pub_tenant"/>
+    <rolemap user="demo" role="Member" tenant="priv_tenant"/>
+    <rolemap user="admin" role="admin" tenant="pub_tenant"/>
+    <!-- Those are unconfirmed roles really -->
+    <rolemap user="admin" role="KeystoneAdmin" tenant="admin"/>
+    <rolemap user="admin" role="KeystoneServiceAdmin" tenant="admin"/>
+  </rolemaps>
+
+  <services tenant="service">
+      <service name="nova" type="compute" disabled="False"  order="1">
+	<user name="nova" password="nova" email="nova@example.com"/>
+	<mysql user="nova" password="nova"/>
+	<address>
+	  <server host="localhost"/>
+	  <admin uri_host="localhost" uri_suff=":$(compute_port)s/v1.1/$(tenant_id)s" />
+	  <public uri_host="localhost" uri_suff=":$(compute_port)s/v1.1/$(tenant_id)s"/>
+	  <internal uri_host="localhost" uri_suff=":$(compute_port)s/v1.1/$(tenant_id)s"/>
+	</address>
+	<region name="RegionOne"/>
+      </service>
+
+      <service name="ec2" type="ec2" disabled="False"  order="2">
+	<address>
+	  <server host="localhost"/>
+	  <admin uri_host="localhost" uri_suff=":8773/services/Cloud" />
+	  <public uri_host="localhost" uri_suff=":8773/services/Admin"/>
+	  <internal uri_host="localhost" uri_suff=":8773/services/Cloud"/>
+	</address>
+	<region name="RegionOne"/>
+      </service>
+      
+
+      <service name="glance" type="image" disabled="False"  order="3">
+	<user name="glance" password="glance" email="glance@example.com"/>
+	<mysql user="glance" password="glance"/>
+	<address>
+	  <server host="localhost"/>
+	  <admin uri_host="localhost" uri_stuff=":9292/v1" />
+	  <public uri_host="localhost" uri_stuff=":9292/v1"/>
+	  <internal uri_host="localhost" uri_stuff=":9292/v1"/>
+	</address>
+	<region name="RegionOne"/>
+      </service>
+
+      <service name="keystone" type="identity" disabled="False" order="4">
+	<user name="keystone" password="keystone" email="keystone@example.com" />
+	<mysql user="keystone" password=""/>
+	<address>
+	  <server host="localhost"/>
+	  <admin uri_host="localhost" uri_suff=":$(public_port)s/v2.0"/>
+	  <public uri_host="localhost" uri_suff=":$(admin_port)s/v2.0"/>
+	  <internal uri_host="localhost" uri_suff=":$(public_port)s/v2.0"/>
+	</address>
+	<region name="RegionOne"/>
+      </service>
+
+      
+      <service name="nova-volume" type="volume" disabled="False" order="5">
+	<user  name="cinder" password="cinder"  email="cinder@example.com"/>
+	<mysql user="cinder" password="cinder"/>
+	<address>
+	  <server host="localhost"/>
+	  <admin uri_host="localhost" uri_suff=":8776/v1/$(tenant_id)s" />
+	  <public uri_host="localhost" uri_suff=":8776/v1/$(tenant_id)s"/>
+	  <internal uri_host="localhost" uri_suff=":8776/v1/$(tenant_id)s"/>
+	</address>
+	<region name="RegionOne"/>
+      </service>
+      
+      <service name="horizon" type="dashboard" disabled="False" order="6">
+	<address>
+	  <server host="localhost"/>
+	</address>
+      </service>
+      
+      <service name="swift" type="object-store" disabled="True"  order="7">
+	<user user="swift" password="swift" email="swift@example.com"/>
+	<mysql user="swift" password="swift"/>
+	<address>
+	  <server host="localhost"/>
+	  <admin uri_host="localhost" uri_suff=":8080/v1/AUTH_$(tenant_id)s"/>
+	  <public uri_host="localhost" uri_suff=":8080/v1/AUTH_$(tenant_id)s"/>
+	  <internal uri_host="localhost" uri_suff=":8080/v1/AUTH_$(tenant_id)s"/>
+	</address>
+	<region name="RegionOne"/>
+      </service>
+      
+      <service name="quantum" type="network" disabled="True"  order="8">
+	<user user="quantum" password="quantum" email="quantum@example.com"/>
+	<mysql user="swift" password="swift"/>
+	<address>
+	  <server host="localhost"/>
+	  <admin uri_host="localhost" uri_suff=":9696"/>
+	  <public uri_host="localhost" uri_suff=":9696"/>
+	  <internal uri_host="localhost" uri_suff=":9696"/>
+	</address>
+	<region name="RegionOne"/>
+      </service>
+      
+  </services>
+  
+    
+</openstack>
+</setup>

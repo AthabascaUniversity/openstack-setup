@@ -10,6 +10,7 @@ DB_ROOT_PW=""
 KEYSTONE_SERVICE_PASSWORD="keystone"
 NOVA_SERVICE_PASSWORD="nova"
 CINDER_SERVICE_PASSWORD="cinder"
+# CINDER_SERVICE_HOST="127.0.0.1"
 GLANCE_SERVICE_PASSWORD="glance"
 ## you will source this file 
 ## any time you want to use 
@@ -62,6 +63,33 @@ TMP_DIR=.
 # NOVA_GLANCE_DEMO_IMG_URL="http://berrange.fedorapeople.org/images/2012-11-15/f17-x86_64-openstack-sda.qcow2"
 # NOVA_GLANCE_DEMO_IMG_NAME="f17-jeos"
 
+### Unused for now
+## KEYSTONE_CONTROLLER_PUBLIC_ADDRESS=localhost
+## KEYSTONE_CONTROLLER_ADMIN_ADDRESS=localhost
+## KEYSTONE_CONTROLLER_INTERNAL_ADDRESS=localhost
+## 
+## NOVA_CONTROLLER_PUBLIC_ADDRESS=localhost
+## NOVA_CONTROLLER_ADMIN_ADDRESS=localhost
+## NOVA_CONTROLLER_INTERNAL_ADDRESS=localhost
+## 
+## GLANCE_CONTROLLER_PUBLIC_ADDRESS=localhost
+## GLANCE_CONTROLLER_ADMIN_ADDRESS=localhost
+## GLANCE_CONTROLLER_INTERNAL_ADDRESS=localhost
+## 
+## CINDER_CONTROLLER_PUBLIC_ADDRESS=localhost
+## CINDER_CONTROLLER_ADMIN_ADDRESS=localhost
+## CINDER_CONTROLLER_INTERNAL_ADDRESS=localhost
+## 
+## SWIFT_CONTROLLER_PUBLIC_ADDRESS=localhost
+## SWIFT_CONTROLLER_ADMIN_ADDRESS=localhost
+## SWIFT_CONTROLLER_INTERNAL_ADDRESS=localhost
+## 
+## QUANTUM_CONTROLLER_PUBLIC_ADDRESS=localhost
+## QUANTUM_CONTROLLER_ADMIN_ADDRESS=localhost
+## QUANTUM_CONTROLLER_INTERNAL_ADDRESS=localhost
+
+
+
 ## EOS
 ######################
 
@@ -75,6 +103,7 @@ TMP_DIR=.
 SERVICE_TOKEN="someverylongandrandomstinggoeshere"
 
 ## !!! Don't touch this
+##SERVICE_ENDPOINT="http://${KEYSTONE_CONTROLLER_PUBLIC_ADDRESS}:35357/v2.0"
 SERVICE_ENDPOINT="http://127.0.0.1:35357/v2.0"
 
 ## OpenStack-specific
@@ -83,6 +112,7 @@ export OS_PASSWORD="xxxpasswordxxx"
 export OS_TENANT_NAME="admin"
 
 ## !!! Don't touch this
+##export OS_AUTH_URL="http://${KEYSTONE_CONTROLLER_PUBLIC_ADDRESS}:5000/v2.0/"
 export OS_AUTH_URL="http://127.0.0.1:5000/v2.0/"
 
 export OS_REGION_NAME=$MY_REGION
