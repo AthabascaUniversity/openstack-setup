@@ -101,7 +101,7 @@ class KeystoneDebug(KeystoneCore):
         return name
 
     def endpoint_create(self,region,service_id,public_url,admin_url,internal_url):
-        self.call('endpoint-create --region "%s" --service-id "%s" --admin-url %s --public-url %s --internal-url %s' % \
+        self.call('endpoint-create --region="%s" --service-id="%s" --adminurl="%s" --publicurl="%s" --internalurl="%s"' % \
                      (region,service_id,public_url,admin_url,internal_url))
         return region+service_id
 
@@ -230,16 +230,16 @@ class KeystoneXMLSetup:
                 users[uname]=self.k.user_create(uname,upassword,uemail,service_tenant_id)
             if enable_endpoints:
                 
-                if se.xpath('addresses'):
-                    admin_nodes=se.xpath('addresses/address[@type="admin"]')
+                for addr in se.xpath('endpoint'):
+                    admin_nodes=addr.xpath('address[@type="admin"]')
                     if admin_nodes:
                         admin_node=admin_nodes[0]
                     else: admin_node=None
-                    public_nodes=se.xpath('addresses/address[@type="public"]')
+                    public_nodes=addr.xpath('address[@type="public"]')
                     if public_nodes:
                         public_node=public_nodes[0]
                     else: public_node=None
-                    internal_nodes=se.xpath('addresses/address[@type="internal"]')
+                    internal_nodes=addr.xpath('address[@type="internal"]')
                     if internal_nodes:
                         internal_node=internal_nodes[0]
                     else: internal_node=None
@@ -255,8 +255,7 @@ class KeystoneXMLSetup:
                     else:
                         print "missing URLs", admin_nodes,public_nodes,internal_nodes
                             
-                else:
-                    print "WHAT, no addresses???"
+                
 
 
 

@@ -41,22 +41,22 @@
       <service name="nova" type="compute" disabled="False" description="" order="1">
 	<user name="nova" password="nova" email="nova@example.com"/>
 	<mysql user="nova" password="nova"/>
-	<addresses>
-	  <address type="server" host="localhost"/>
+        <host name="localhost"/>
+	<endpoint>
 	  <address type="admin" host="localhost" uri_suff=":$(compute_port)s/v1.1/$(tenant_id)s" />
 	  <address type="public" host="localhost" uri_suff=":$(compute_port)s/v1.1/$(tenant_id)s"/>
 	  <address type="internal" host="localhost" uri_suff=":$(compute_port)s/v1.1/$(tenant_id)s"/>
-	</addresses>
+	</endpoint>
 	<region name="RegionOne"/>
       </service>
 
       <service name="ec2" type="ec2" disabled="False"  description="" order="2">
-	<addresses>
-	  <address type="server" host="localhost"/>
+        <host name="localhost"/>
+	<endpoint>
 	  <address type="admin" host="localhost" uri_suff=":8773/services/Cloud" />
 	  <address type="public" host="localhost" uri_suff=":8773/services/Admin"/>
 	  <address type="internal" host="localhost" uri_suff=":8773/services/Cloud"/>
-	</addresses>
+	</endpoint>
 	<region name="RegionOne"/>
       </service>
       
@@ -64,24 +64,30 @@
       <service name="glance" type="image" disabled="False" description=""  order="3">
 	<user name="glance" password="glance" email="glance@example.com"/>
 	<mysql user="glance" password="glance"/>
-	<addresses>
-	  <address type="server" host="localhost"/>
+        <host name="localhost"/>
+	<endpoint>
 	  <address type="admin" host="localhost" uri_suff=":9292/v1" />
 	  <address type="public" host="localhost" uri_suff=":9292/v1"/>
 	  <address type="internal" host="localhost" uri_suff=":9292/v1"/>
-	</addresses>
+	</endpoint>
 	<region name="RegionOne"/>
       </service>
 
       <service name="keystone" type="identity" disabled="False" description="" order="4">
 	<user name="keystone" password="keystone" email="keystone@example.com" />
 	<mysql user="keystone" password=""/>
-	<addresses>
-	  <address type="server" host="localhost"/>
+        <host name="localhost"/>
+	<endpoint>
 	  <address type="admin" host="localhost" uri_suff=":$(public_port)s/v2.0"/>
 	  <address type="public" host="localhost" uri_suff=":$(admin_port)s/v2.0"/>
 	  <address type="internal" host="localhost" uri_suff=":$(public_port)s/v2.0"/>
-	</addresses>
+	</endpoint>
+        <endpoint>
+          <address type="admin" host="10.10.10.1" uri_suff=":$(public_port)s/v2.0"/>
+          <address type="public" host="10.10.10.1" uri_suff=":$(admin_port)s/v2.0"/>
+          <address type="internal" host="10.10.10.1" uri_suff=":$(public_port)s/v2.0"/>
+        </endpoint>
+
 	<region name="RegionOne"/>
       </service>
 
@@ -89,42 +95,40 @@
       <service name="nova-volume" type="volume" disabled="False" description="" order="5">
 	<user  name="cinder" password="cinder"  email="cinder@example.com"/>
 	<mysql user="cinder" password="cinder"/>
-	<addresses>
-	  <address type="server" host="localhost"/>
+        <host name="localhost"/>
+	<endpoint>
 	  <address type="admin" host="localhost" uri_suff=":8776/v1/$(tenant_id)s" />
 	  <address type="public" host="localhost" uri_suff=":8776/v1/$(tenant_id)s"/>
 	  <address type="internal" host="localhost" uri_suff=":8776/v1/$(tenant_id)s"/>
-	</addresses>
+	</endpoint>
 	<region name="RegionOne"/>
       </service>
       
       <service name="horizon" type="dashboard" disabled="False" description="" order="6">
-	<addresses>
-	  <address type="server" host="localhost"/>
-	</addresses>
+        <host name="localhost"/>
       </service>
       
       <service name="swift" type="object-store" disabled="True" description=""  order="7">
-	<user user="swift" password="swift" email="swift@example.com"/>
+	<user name="swift" password="swift" email="swift@example.com"/>
 	<mysql user="swift" password="swift"/>
-	<addresses>
-	  <address type="server" host="localhost"/>
+        <host name="localhost"/>
+	<endpoint>
 	  <address type="admin" host="localhost" uri_suff=":8080/v1/AUTH_$(tenant_id)s"/>
 	  <address type="public" host="localhost" uri_suff=":8080/v1/AUTH_$(tenant_id)s"/>
 	  <address type="internal" host="localhost" uri_suff=":8080/v1/AUTH_$(tenant_id)s"/>
-	</addresses>
+	</endpoint>
 	<region name="RegionOne"/>
       </service>
       
       <service name="quantum" type="network" disabled="True" description=""  order="8">
-	<user user="quantum" password="quantum" email="quantum@example.com"/>
+	<user name="quantum" password="quantum" email="quantum@example.com"/>
 	<mysql user="swift" password="swift"/>
-	<addresses>
-	  <address type="server" host="localhost"/>
+        <host name="localhost"/>
+	<endpoint>
 	  <address type="admin" host="localhost" uri_suff=":9696"/>
 	  <address type="public" host="localhost" uri_suff=":9696"/>
 	  <address type="internal" host="localhost" uri_suff=":9696"/>
-	</addresses>
+	</endpoint>
 	<region name="RegionOne"/>
       </service>
       
