@@ -116,12 +116,18 @@ class KeystoneDebug(KeystoneCore):
             secret=None
         self.call('ec2-credentials-create --user-id="%s" --tenant-id="%s"' %(user_id,tenant_id))
         e=fake_EC2()
+        e.user_id=user_id
+        e.tenant_id=tenant_id
+        e.access='access'+user_id+tenant_id
+        e.secret='secret'+user_id+tenant_id
         return e
 
-Keystone=KeystoneDebug    
-
 class KeystoneXMLSetup:
-    def __init__(self,config):
+    def __init__(self,config,debug=True):
+        if debug:
+            Keystone=KeystoneDebug    
+        else:
+            Keystone=KeystoneCore
         self.ids={}
         self.ec2_tenant_users={}
         f=open(config,'r')
@@ -180,8 +186,11 @@ class KeystoneXMLSetup:
 
     def setupUsers(self):
         self.ids['users']={}
+        self.ids['ec2']={}
+
         tenants=self.ids['tenants']
         users=self.ids['users']
+        my_ec2=self.ids['ec2']
 
         user_elements=self.config.xpath('/setup/openstack/users/user')
         for ue in user_elements:
@@ -190,7 +199,8 @@ class KeystoneXMLSetup:
             user_email=ue.attrib['email']
             users[user_name]=self.k.user_create(user_name,user_password,user_email)
             if self.ec2_tenant_users.has_key(user_name):
-                sef.k.ec2_credentials_create(users[user_name],tenants[ec2_tenant_users[user_name]]))
+                tenant_name=ec2_tenant_users[user_name]
+                my_ec2[(user_name,tenant_name)]=sef.k.ec2_credentials_create(users[user_name],tenants[tenant_name]))
 
     def setupRoles(self):
         self.ids['roles']={}
