@@ -13,7 +13,7 @@
 #>>> keystone = client.Client(username=username, password=password,
 #...                          tenant_name=tenant_name, auth_url=auth_url)
 
-from keystoneclient.v2_0 import client
+from keystoneclient.v2_0 import client,ec2
 from lxml import etree
 import sys
 
@@ -31,7 +31,7 @@ class KeystoneCore():
 
             self.client = client.Client(username=self.username, password=self.password,
                                      tenant_name=self.tenant_name, auth_url=self.auth_url)
-
+            
     def role_create(self,name):
         r=self.client.roles.create(name)
         return r.id
@@ -56,6 +56,9 @@ class KeystoneCore():
         e=self.client.endpoints.create(region=region,service_id=service_id,
                     publicurl=public_url,adminurl=admin_url,internalurl=internal_url)
         return e.id
+    
+    def ec2_credentials_create(self,user_id,tenant_id):
+        return self.client.ec2.create(user_id,tenant_id)
 
 class KeystoneDebug(KeystoneCore):
     def __init__(self,god=True,**kwargs):
@@ -104,6 +107,10 @@ class KeystoneDebug(KeystoneCore):
         self.call('endpoint-create --region="%s" --service-id="%s" --adminurl="%s" --publicurl="%s" --internalurl="%s"' % \
                      (region,service_id,public_url,admin_url,internal_url))
         return region+service_id
+
+    def ec2_credentials_create(self,user_id,tenant_id):
+        self.call('ec2-credentials-create --user-id="%s" --tenant-id="%s"' %(user_id,tenant_id))
+        return 'ec2'+user_id+tenant_id
 
 Keystone=KeystoneDebug    
 
