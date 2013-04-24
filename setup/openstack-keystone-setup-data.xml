@@ -4,13 +4,14 @@
   <auth user="admin" password="XXXXXXXXXX" tenant="YYY" uri="http://127.0.0.1:5000/v2.0/"/>
   <endpoint uri="http://127.0.0.1:35357/v2.0" token="moo"/>
   <config path="/etc/keystone/keystone.conf"/>
+  <ec2 admin_role="admin"/>
 </env>
 
 <openstack>
   <tenants>
-    <tenant name="admin" ec2_user="admin"/>
+    <tenant name="admin"/>
     <tenant name="service"/>
-    <tenant name="pub_tenant" ec2_user="demo"/>
+    <tenant name="pub_tenant"/>
     <tenant name="priv_tenant"/>
   </tenants>
   <users>

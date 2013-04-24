@@ -55,8 +55,10 @@ until keystone user-list >/dev/null 2>&1; do
 done
 
 ##XXX fix openstack-keystone-setup-data ...
-ADMIN_PASSWORD=$OS_PASSWORD SERVICE_PASSWORD=${KEYSTONE_SERVICE_PASSWORD} \
-  ENABLE_SWIFT=${ENABLE_SWIFT} openstack-keystone-setup-data
+# ADMIN_PASSWORD=$OS_PASSWORD SERVICE_PASSWORD=${KEYSTONE_SERVICE_PASSWORD} \
+#   ENABLE_SWIFT=${ENABLE_SWIFT} openstack-keystone-setup-data
+
+python openstack-keystone-setup-data.py openstack-keystone-setup-data.xml
 
 
 if [ "$ENABLE_CINDER" = "1" ] ; then

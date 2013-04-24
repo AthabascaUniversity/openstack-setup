@@ -135,11 +135,11 @@ class KeystoneXMLSetup:
         f.close()
         env=self.config.xpath('/setup/env')[0]
         auth_nodes=env.xpath('auth')
-        print auth_nodes
+        # print auth_nodes
         if auth_nodes:
             auth_node=auth_nodes[0]
         endpoint_nodes=env.xpath('endpoint')
-        print endpoint_nodes
+        # print endpoint_nodes
         if endpoint_nodes:
             endpoint_node=endpoint_nodes[0]
         if endpoint_nodes:
@@ -153,7 +153,11 @@ class KeystoneXMLSetup:
             auth_url=auth_node.attrib['uri']
             self.k=Keystone(god=False,user=user,password=password,tenant=tenant,auth_url=auth_url)
             
-        
+        ec2_nodes=evn.xpath('ec2')
+        if ec2_nodes:
+            self.ec2_admin_role=e.attrib['admin_role']
+        else:
+            self.ec2_admin_role='admin'
 
         self.setupTenants()
         self.setupUsers()
@@ -198,9 +202,9 @@ class KeystoneXMLSetup:
             user_password=ue.attrib['password']
             user_email=ue.attrib['email']
             users[user_name]=self.k.user_create(user_name,user_password,user_email)
-            if self.ec2_tenant_users.has_key(user_name):
-                tenant_name=ec2_tenant_users[user_name]
-                my_ec2[(user_name,tenant_name)]=sef.k.ec2_credentials_create(users[user_name],tenants[tenant_name]))
+            #if self.ec2_tenant_users.has_key(user_name):
+                #tenant_name=ec2_tenant_users[user_name]
+                #my_ec2[(user_name,tenant_name)]=sef.k.ec2_credentials_create(users[user_name],tenants[tenant_name]))
 
     def setupRoles(self):
         self.ids['roles']={}
@@ -223,6 +227,8 @@ class KeystoneXMLSetup:
             role=rme.attrib['role']
             tenant=rme.attrib['tenant']
             self.k.user_role_add(user,   role,    tenant)
+            if role==self.ec2_admin_role:
+                my_ec2[(user,tenant)]=sef.k.ec2_credentials_create(users[user],tenants[tenant]))
 
     def setupServices(self,enable_endpoints=True):
         roles=self.ids['roles']
