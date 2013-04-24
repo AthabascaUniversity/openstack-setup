@@ -109,14 +109,21 @@ class KeystoneDebug(KeystoneCore):
         return region+service_id
 
     def ec2_credentials_create(self,user_id,tenant_id):
+        class fake_EC2():
+            user_id=None
+            tenant_id=None
+            access=None
+            secret=None
         self.call('ec2-credentials-create --user-id="%s" --tenant-id="%s"' %(user_id,tenant_id))
-        return 'ec2'+user_id+tenant_id
+        e=fake_EC2()
+        return e
 
 Keystone=KeystoneDebug    
 
 class KeystoneXMLSetup:
     def __init__(self,config):
         self.ids={}
+        self.ec2_tenant_users={}
         f=open(config,'r')
         self.config=etree.parse(f)
         f.close()
@@ -167,10 +174,13 @@ class KeystoneXMLSetup:
         tenant_elements=self.config.xpath('/setup/openstack/tenants/tenant')
         for te in tenant_elements:
             tenant_name=te.attrib['name']
+            tenant_ec2_user=te.attrib['ec2_user']
             tenants[tenant_name]=self.k.tenant_create(tenant_name)
+            self.ec2_tenant_users[tenant_ec2_user]=tenant_name
 
     def setupUsers(self):
         self.ids['users']={}
+        tenants=self.ids['tenants']
         users=self.ids['users']
 
         user_elements=self.config.xpath('/setup/openstack/users/user')
@@ -179,6 +189,8 @@ class KeystoneXMLSetup:
             user_password=ue.attrib['password']
             user_email=ue.attrib['email']
             users[user_name]=self.k.user_create(user_name,user_password,user_email)
+            if self.ec2_tenant_users.has_key(user_name):
+                sef.k.ec2_credentials_create(users[user_name],tenants[ec2_tenant_users[user_name]]))
 
     def setupRoles(self):
         self.ids['roles']={}
@@ -263,9 +275,6 @@ class KeystoneXMLSetup:
                         print "missing URLs", admin_nodes,public_nodes,internal_nodes
                             
                 
-
-
-
 if __name__ == '__main__':
     if len(sys.argv)<=1:
         print "Missing config parameter"

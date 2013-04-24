@@ -8,9 +8,9 @@
 
 <openstack>
   <tenants>
-    <tenant name="admin"/>
+    <tenant name="admin" ec2_user="admin"/>
     <tenant name="service"/>
-    <tenant name="pub_tenant"/>
+    <tenant name="pub_tenant" ec2_user="demo"/>
     <tenant name="priv_tenant"/>
   </tenants>
   <users>
