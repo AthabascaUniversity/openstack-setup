@@ -16,6 +16,7 @@
 from keystoneclient.v2_0 import client,ec2
 from lxml import etree
 import sys
+import argparse
 
 class KeystoneCore():
     def __init__(self,god=True,**kwargs):
@@ -59,6 +60,10 @@ class KeystoneCore():
     
     def ec2_credentials_create(self,user_id,tenant_id):
         return self.client.ec2.create(user_id,tenant_id)
+
+    def ec2_credentials_list(self,user_id):
+        return self.client.ec2.list(user_id)
+
 
 class KeystoneDebug(KeystoneCore):
     def __init__(self,god=True,**kwargs):
@@ -122,6 +127,11 @@ class KeystoneDebug(KeystoneCore):
         e.secret='secret'+user_id+tenant_id
         return e
 
+    def ec2_credentials_list(self,user_id):
+        self.call('ec2-credentials-list --user-id="%s"' % (user_id))
+        return ()
+
+
 class KeystoneXMLSetup:
     def __init__(self,config,debug=True):
         if debug:
@@ -153,17 +163,20 @@ class KeystoneXMLSetup:
             auth_url=auth_node.attrib['uri']
             self.k=Keystone(god=False,user=user,password=password,tenant=tenant,auth_url=auth_url)
             
-        ec2_nodes=evn.xpath('ec2')
+        ec2_nodes=env.xpath('ec2')
+        self.ec2_admin_roles=[]
         if ec2_nodes:
-            self.ec2_admin_role=e.attrib['admin_role']
+            for e in ec2_nodes:
+                self.ec2_admin_roles.append(e.attrib['admin_role'])
         else:
-            self.ec2_admin_role='admin'
+            self.ec2_admin_roles.append('admin')
 
         self.setupTenants()
         self.setupUsers()
         self.setupRoles()
         self.setupRoleMaps()
         self.setupServices()
+        self.listEC2codes()
 
         # self.setupServices(enable_endpoints=True)
         #self.setupNova(enable_endpoints)
@@ -184,17 +197,14 @@ class KeystoneXMLSetup:
         tenant_elements=self.config.xpath('/setup/openstack/tenants/tenant')
         for te in tenant_elements:
             tenant_name=te.attrib['name']
-            tenant_ec2_user=te.attrib['ec2_user']
+            #tenant_ec2_user=te.attrib['ec2_user']
             tenants[tenant_name]=self.k.tenant_create(tenant_name)
-            self.ec2_tenant_users[tenant_ec2_user]=tenant_name
+            #self.ec2_tenant_users[tenant_ec2_user]=tenant_name
 
     def setupUsers(self):
         self.ids['users']={}
-        self.ids['ec2']={}
-
         tenants=self.ids['tenants']
         users=self.ids['users']
-        my_ec2=self.ids['ec2']
 
         user_elements=self.config.xpath('/setup/openstack/users/user')
         for ue in user_elements:
@@ -219,6 +229,8 @@ class KeystoneXMLSetup:
         roles=self.ids['roles']
         users=self.ids['users']
         tenants=self.ids['tenants']
+        self.ids['ec2']={}
+        my_ec2=self.ids['ec2']
 
         rolemap_elements=self.config.xpath('/setup/openstack/rolemaps/rolemap')
 
@@ -227,8 +239,8 @@ class KeystoneXMLSetup:
             role=rme.attrib['role']
             tenant=rme.attrib['tenant']
             self.k.user_role_add(user,   role,    tenant)
-            if role==self.ec2_admin_role:
-                my_ec2[(user,tenant)]=sef.k.ec2_credentials_create(users[user],tenants[tenant]))
+            if role in self.ec2_admin_roles:
+                my_ec2[(user,tenant)]=self.k.ec2_credentials_create(users[user],tenants[tenant])
 
     def setupServices(self,enable_endpoints=True):
         roles=self.ids['roles']
@@ -290,11 +302,21 @@ class KeystoneXMLSetup:
                     else:
                         print "missing URLs", admin_nodes,public_nodes,internal_nodes
                             
+    def listEC2codes(self):
+        for (user,tenant) in self.ids['ec2']:
+            print ">> ",user, tenant
+            ec2_list=self.k.ec2_credentials_list(self.ids['users'][user])
+            print ">>>> ",ec2_list
                 
 if __name__ == '__main__':
-    if len(sys.argv)<=1:
-        print "Missing config parameter"
-    else:
-        KeystoneXMLSetup(sys.argv[1])
+    parser = argparse.ArgumentParser(description='Setup keystone sample data')
+    parser.add_argument('data', type=str, nargs='?',
+                     help='Keystone sample data in XML format')
+    parser.add_argument('--dry-run', action='store_const', const=True, default=False,
+                     help='Just pretend to execute',required=False)
+
+    args=parser.parse_args(sys.argv[1:])
+    KeystoneXMLSetup(args.data,args.dry_run)
+    print "# Finished"
         
   

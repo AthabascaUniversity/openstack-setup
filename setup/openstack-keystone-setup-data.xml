@@ -5,6 +5,7 @@
   <endpoint uri="http://127.0.0.1:35357/v2.0" token="moo"/>
   <config path="/etc/keystone/keystone.conf"/>
   <ec2 admin_role="admin"/>
+  <ec2 admin_role="sysadmin"/>
 </env>
 
 <openstack>
