@@ -17,8 +17,44 @@ from keystoneclient.v2_0 import client,ec2
 from lxml import etree
 import sys
 import argparse
+import re
+
+DEBUG=False
+
+def debug(method):
+    global DEBUG
+    def new_method(*args,**kwargs):
+        print method.__name__, args, kwargs
+        return method(*args,**kwargs)
+    if DEBUG:
+    	return new_method
+    else:
+        return method
+
+def logmethod(method):
+    def new_method(self,*args,**kwargs):
+        print method, args, kwargs,
+        _method=getattr(self,'_H_%s' % method)
+        res=_method(*args,**kwargs)
+        print '-> ',res
+        return res
+    return new_method
+
+class DebugMethods(type):
+    def __new__(cls,classname,bases,classdict):
+        logmatch = re.compile(classdict.get('logMatch','.*'))
+        
+        for attr,item in classdict.items():
+            if callable(item) and logmatch.match(attr):
+                classdict['_H_%s'%attr] = item    # rebind the method
+                classdict[attr] = logmethod(attr) # replace method by wrapper
+
+        return type.__new__(cls,classname,bases,classdict)
+
 
 class KeystoneCore():
+    __metaclass__=DebugMethods
+    logMatch='.*'
     def __init__(self,god=True,**kwargs):
         if god:
             self.token=kwargs['token']
@@ -47,7 +83,6 @@ class KeystoneCore():
 
     def user_role_add(self,user,role,tenant):
         self.client.roles.add_user_role(user,role,tenant)
-        # return ur
 
     def service_create(self,name,stype,description):
         s=self.client.services.create(name,stype,description)
@@ -133,7 +168,9 @@ class KeystoneDebug(KeystoneCore):
 
 
 class KeystoneXMLSetup:
+    id_hash=None
     def __init__(self,config,debug=True):
+        self.id_hash={'user':{},'tenant':{},'role':{},'service':{},'endpoint':{}}
         if debug:
             Keystone=KeystoneDebug    
         else:
@@ -238,7 +275,7 @@ class KeystoneXMLSetup:
             user=rme.attrib['user']
             role=rme.attrib['role']
             tenant=rme.attrib['tenant']
-            self.k.user_role_add(user,   role,    tenant)
+            self.k.user_role_add(users[user],   roles[role],    tenants[tenant])
             if role in self.ec2_admin_roles:
                 my_ec2[(user,tenant)]=self.k.ec2_credentials_create(users[user],tenants[tenant])
 
